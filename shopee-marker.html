@@ -11,15 +11,15 @@
             margin: 20px;
         }
 
-#main {
-  display: flex;
-  gap: 20px;
-  align-items: flex-start;
-  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  width: 98%;
-  margin-left: 1%;
-  box-sizing: border-box;
-}
+        #main {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            width: 98%;
+            margin-left: 1%;
+            box-sizing: border-box;
+        }
 
 
         #left {
@@ -69,7 +69,7 @@
         }
 
         #itemSelector button {
-            margin: 0 5px;
+            margin: 0 4px;
             padding: 5px 10px;
             font-size: 16px;
             cursor: pointer;
@@ -204,6 +204,16 @@
                 <button data-item="8">8</button>
                 <button data-item="9">9</button>
                 <button data-item="10">10</button>
+                <button data-item="11">11</button>
+                <button data-item="12">12</button>
+                <button data-item="13">13</button>
+                <button data-item="14">14</button>
+                <button data-item="15">15</button>
+                <button data-item="16">16</button>
+                <button data-item="17">17</button>
+                <button data-item="18">18</button>
+                <button data-item="19">19</button>
+                <button data-item="20">20</button>
             </div>
 
             <div id="canvasWrapper">
@@ -227,6 +237,8 @@
         let currentItem = 1;
         const itemColors = [
             "rgba(255, 0, 0, 0.6)", "rgba(0, 128, 0, 0.6)", "rgba(0, 0, 255, 0.6)",
+            "rgba(255, 165, 0, 0.6)", "rgba(128, 0, 128, 0.6)", "rgba(0, 255, 255, 0.6)",
+            "rgba(255, 255, 0, 0.6)", "rgba(165, 42, 42, 0.6)", "rgba(255, 192, 203, 0.6)", "rgba(128, 128, 128, 0.6)","rgba(255, 0, 0, 0.6)", "rgba(0, 128, 0, 0.6)", "rgba(0, 0, 255, 0.6)",
             "rgba(255, 165, 0, 0.6)", "rgba(128, 0, 128, 0.6)", "rgba(0, 255, 255, 0.6)",
             "rgba(255, 255, 0, 0.6)", "rgba(165, 42, 42, 0.6)", "rgba(255, 192, 203, 0.6)", "rgba(128, 128, 128, 0.6)"
         ];
@@ -326,7 +338,7 @@
                 }
             });
             tableBody.innerHTML = "";
-            for (let item = 1; item <= 10; item++) {
+            for (let item = 1; item <= 20; item++) {
                 if (itemCounts[item]) {
                     const row = tableBody.insertRow();
                     const name = existingData[item]?.name || "";
@@ -386,12 +398,93 @@
             link.click();
             alert("匯出excel檔案成功");
         };
-        window.downloadImage = () => {
-            const link = document.createElement("a");
-            link.download = "marked_image.png";
-            link.href = canvas.toDataURL("image/png");
-            link.click();
-        };
+window.downloadImage = () => {
+    console.log("下載圖片功能啟動");
+    const canvas = document.getElementById("canvas");
+    if (!canvas) return alert("找不到 canvas 元素");
+
+    const imageData = canvas.toDataURL("image/png");
+    const imgElement = new Image();
+    imgElement.src = imageData;
+
+    imgElement.onload = () => {
+        const table = document.getElementById("itemTable");
+        if (!table) return alert("找不到 itemTable");
+
+        const tableClone = table.cloneNode(true);
+        console.log("表格已複製");
+
+const render = () => {
+    console.log("開始使用 html2canvas...");
+
+    // 將複製表格插入 DOM 並隱藏
+    tableClone.style.maxWidth = "600px";
+    tableClone.style.position = 'absolute';
+    tableClone.style.top = '-9999px';
+    document.body.appendChild(tableClone);
+
+    html2canvas(tableClone, {
+        backgroundColor: null,
+        scale: 2
+    }).then(tableCanvas => {
+        console.log("表格轉圖完成");
+
+        // 拿掉隱藏的表格
+        document.body.removeChild(tableClone);
+
+        const padding = 30;
+// 計算左右合併的寬高
+const totalWidth = tableCanvas.width + canvas.width + padding;
+const totalHeight = Math.max(canvas.height, tableCanvas.height);
+
+const finalCanvas = document.createElement("canvas");
+finalCanvas.width = totalWidth;
+finalCanvas.height = totalHeight;
+const finalCtx = finalCanvas.getContext("2d");
+
+// 背景白底
+finalCtx.fillStyle = "#fff";
+finalCtx.fillRect(0, 0, totalWidth, totalHeight);
+
+// 畫表格在左
+finalCtx.drawImage(tableCanvas, 10, 10);
+
+// 畫圖片在右
+finalCtx.drawImage(imgElement, tableCanvas.width + padding, 0);
+
+// 產出與下載
+const link = document.createElement("a");
+link.download = "merged_image_left_table.png";
+link.href = finalCanvas.toDataURL("image/png");
+link.click();
+
+        console.log("下載完成");
+    }).catch(err => {
+        console.error("html2canvas 錯誤：", err);
+    });
+};
+
+        if (typeof html2canvas === "undefined") {
+            console.log("html2canvas 尚未載入，開始載入...");
+            const script = document.createElement("script");
+            script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+            script.onload = () => {
+                console.log("html2canvas 載入完成");
+                render();
+            };
+            script.onerror = () => {
+                console.error("html2canvas 載入失敗！");
+            };
+            document.body.appendChild(script);
+        } else {
+            render();
+        }
+    };
+};
+
+
+
+
     </script>
 </body>
 
