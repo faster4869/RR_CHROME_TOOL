@@ -11,24 +11,29 @@
             margin: 20px;
         }
 
-        #main {
-            display: flex;
-            gap: 20px;
-            align-items: flex-start;
-            width: 98%;
-            margin-left: 1%;
-        }
+#main {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  width: 98%;
+  margin-left: 1%;
+  box-sizing: border-box;
+}
+
+
         #left {
             flex: 1;
             width: 35%;
         }
+
         #right {
             flex: 2;
             width: 60%;
         }
 
         #canvasWrapper {
-            
+
             width: 90%;
             height: 100%;
             margin-left: 5%;
@@ -37,15 +42,20 @@
             margin-top: 20px;
 
         }
-        
+
         #canvasWrapper p {
-  text-align: left;            /* 文字水平置中 */
-  font-size: 16px;               /* 字體大小 */
-  color: #666;                   /* 提示文字顏色（灰色） */
-  margin-top: 10px;     
-  margin-left: 10px;        /* 與 canvas 的間距 */
-  font-style: italic;            /* 可選：斜體顯示提示感 */
-}
+            text-align: left;
+            /* 文字水平置中 */
+            font-size: 16px;
+            /* 字體大小 */
+            color: #666;
+            /* 提示文字顏色（灰色） */
+            margin-top: 10px;
+            margin-left: 10px;
+            /* 與 canvas 的間距 */
+            font-style: italic;
+            /* 可選：斜體顯示提示感 */
+        }
 
         canvas {
             display: block;
@@ -74,7 +84,7 @@
         }
 
         #itemSelector button:not(.active) {
-            opacity: 0.7;
+            opacity: 0.3;
         }
 
         #list {
@@ -157,8 +167,8 @@
                 <table id="itemTable">
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>商品名稱</th>
+                            <th>品項</th>
+                            <th>品名</th>
                             <th>金額</th>
                             <th>數量</th>
                             <th>小計</th>
@@ -223,6 +233,8 @@
         itemButtons.forEach(button => {
             const item = parseInt(button.dataset.item);
             button.style.backgroundColor = itemColors[item - 1];
+            button.style.color = "black";
+            button.style.fontWeight = "bold";
             button.addEventListener("click", () => {
                 itemButtons.forEach(btn => btn.classList.remove("active"));
                 button.classList.add("active");
