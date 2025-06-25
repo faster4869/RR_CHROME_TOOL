@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -7,19 +6,39 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     body { font-family: Arial; margin: 20px; }
-    #main { display: flex; gap: 20px; align-items: flex-start; width: 98%;marginLeft:1%}
-    #canvasWrapper { width: 60%; height: 60%; overflow: auto; border: 0px solid #ccc; }
+    #main { display: flex; gap: 20px; align-items: flex-start; width: 98%; margin-left: 1%; }
+    #canvasWrapper { overflow: auto; border: 1px solid #ccc; }
     canvas { display: block; cursor: crosshair; }
     #itemSelector { margin-bottom: 10px; }
-    #itemSelector button { margin: 0 5px; padding: 5px 10px; font-size: 16px; cursor: pointer; color: white; border: none; border-radius: 3px; }
+    #itemSelector button {
+      margin: 0 5px;
+      padding: 5px 10px;
+      font-size: 16px;
+      cursor: pointer;
+      color: white;
+      border: none;
+      border-radius: 3px;
+    }
     #itemSelector button.active { border: 2px solid #000; opacity: 1; }
     #itemSelector button:not(.active) { opacity: 0.7; }
-    #list { flex: none; width: 35%; overflow-y: auto; border: 0px solid #ccc; padding: 10px; box-sizing: border-box;marginLeft:5%
-          }
+    #list {
+      flex: none;
+      width: 35%;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 10px;
+      box-sizing: border-box;
+      margin-left: 5%;
+    }
     #controls { margin-bottom: 10px; }
     #imageUpload { display: none; }
     table { border-collapse: collapse; table-layout: fixed; width: 100%; }
-    th, td { border: 1px solid #ccc; padding: 6px; text-align: center; word-wrap: break-word; }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      text-align: center;
+      word-wrap: break-word;
+    }
     th:nth-child(1), td:nth-child(1) { width: 16%; }
     th:nth-child(2), td:nth-child(2) { width: 24%; }
     th:nth-child(3), td:nth-child(3) { width: 15%; }
@@ -30,14 +49,14 @@
   </style>
 </head>
 <body>
-  <!--<h2>Shopee圖片標記/商品資訊統計工具</h2>-->
   <div id="controls">
     <input type="file" id="imageUpload" accept="image/*">
-    <button onclick="document.getElementById('imageUpload').click()">📁上傳圖片或拖曳圖片至下方區域</button>
+    <button onclick="document.getElementById('imageUpload').click()">📁 上傳圖片或拖曳圖片至下方區域</button>
     <button onclick="clearAllMarks()">清除所有標記</button>
     <button onclick="exportToExcel()">匯出成 Excel</button>
     <button onclick="downloadImage()">下載標記後圖片</button>
   </div>
+
   <div id="itemSelector">
     <span>選擇品項後進行標記：</span>
     <button data-item="1" class="active">1</button>
@@ -51,6 +70,7 @@
     <button data-item="9">9</button>
     <button data-item="10">10</button>
   </div>
+
   <div id="main">
     <div id="canvasWrapper">
       <canvas id="canvas"></canvas>
@@ -77,24 +97,28 @@
       </table>
     </div>
   </div>
-  <script>
 
+  <script>
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
     const imageUpload = document.getElementById("imageUpload");
     const tableBody = document.querySelector("#itemTable tbody");
     const totalCell = document.getElementById("totalCell");
     const itemButtons = document.querySelectorAll("#itemSelector button");
+    const wrapper = document.getElementById("canvasWrapper");
+
     let img = new Image();
     let originalImage = null;
     let marks = [];
     let scale = 1;
     let currentItem = 1;
+
     const itemColors = [
       "rgba(255, 0, 0, 0.6)", "rgba(0, 128, 0, 0.6)", "rgba(0, 0, 255, 0.6)",
       "rgba(255, 165, 0, 0.6)", "rgba(128, 0, 128, 0.6)", "rgba(0, 255, 255, 0.6)",
       "rgba(255, 255, 0, 0.6)", "rgba(165, 42, 42, 0.6)", "rgba(255, 192, 203, 0.6)", "rgba(128, 128, 128, 0.6)"
     ];
+
     itemButtons.forEach(button => {
       const item = parseInt(button.dataset.item);
       button.style.backgroundColor = itemColors[item - 1];
@@ -104,157 +128,67 @@
         currentItem = item;
       });
     });
-    imageUpload.addEventListener("change", (e) => handleFileUpload(e.target.files[0]));
-    document.addEventListener("dragover", (e) => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; });
-    document.addEventListener("drop", (e) => {
+
+    imageUpload.addEventListener("change", e => handleFileUpload(e.target.files[0]));
+    document.addEventListener("dragover", e => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; });
+    document.addEventListener("drop", e => {
       e.preventDefault();
       const file = e.dataTransfer.files[0];
       if (file) handleFileUpload(file);
     });
+
     function handleFileUpload(file) {
       const reader = new FileReader();
       reader.onload = function (evt) {
-        img.addEventListener("load", () => {
+        img.onload = () => {
           originalImage = new Image();
           originalImage.src = img.src;
+
           scale = Math.min(1, 1000 / img.width, 1000 / img.height);
-          canvas.width = img.width * scale;
-          canvas.height = img.height * scale;
+          const displayWidth = img.width * scale;
+          const displayHeight = img.height * scale;
+
+          canvas.width = displayWidth;
+          canvas.height = displayHeight;
+
+          // ✅ 動態調整 wrapper 大小
+          wrapper.style.width = `${displayWidth}px`;
+          wrapper.style.height = `${displayHeight}px`;
+
           marks = [];
           tableBody.innerHTML = "";
           totalCell.textContent = "0";
           drawImage();
-        });
+        };
         img.src = evt.target.result;
       };
       reader.readAsDataURL(file);
     }
+
     canvas.addEventListener("click", (e) => {
       const rect = canvas.getBoundingClientRect();
       const x = (e.clientX - rect.left) / scale;
       const y = (e.clientY - rect.top) / scale;
-      let markIndex = -1;
-      for (let i = 0; i < marks.length; i++) {
-        const mark = marks[i];
+
+      const markIndex = marks.findIndex(mark => {
         const dx = x - mark.x;
         const dy = y - mark.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance < 12 / scale) {
-          markIndex = i;
-          break;
-        }
-      }
+        return Math.sqrt(dx * dx + dy * dy) < 12 / scale;
+      });
+
       if (markIndex >= 0) {
         marks.splice(markIndex, 1);
-        updateTable();
-        drawImage();
       } else {
         marks.push({ item: currentItem, x, y });
-        updateTable();
-        drawImage();
       }
+
+      updateTable();
+      drawImage();
     });
+
     function drawImage() {
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
       redrawMarks();
     }
-    function redrawMarks() {
-      for (const mark of marks) {
-        const x = mark.x * scale;
-        const y = mark.y * scale;
-        ctx.beginPath();
-        ctx.arc(x, y, 12, 0, 2 * Math.PI);
-        ctx.fillStyle = itemColors[mark.item - 1];
-        ctx.fill();
-        ctx.fillStyle = "white";
-        ctx.font = "14px bold Arial";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(mark.item.toString(), x, y);
-      }
-    }
-    function updateTable() {
-      const itemCounts = {};
-      marks.forEach(mark => itemCounts[mark.item] = (itemCounts[mark.item] || 0) + 1);
-      const existingData = {};
-      [...tableBody.rows].forEach(row => {
-        const item = parseInt(row.cells[0].textContent);
-        if (item >= 1 && item <= 10) {
-          existingData[item] = {
-            name: row.cells[1].textContent,
-            price: row.cells[2].textContent
-          };
-        }
-      });
-      tableBody.innerHTML = "";
-      for (let item = 1; item <= 10; item++) {
-        if (itemCounts[item]) {
-          const row = tableBody.insertRow();
-          const name = existingData[item]?.name || "";
-          const price = parseFloat(existingData[item]?.price) || 0;
-          const qty = itemCounts[item];
-          const subtotal = (price * qty).toFixed(1);
-          row.innerHTML = `
-            <td>${item}</td>
-            <td contenteditable="true">${name}</td>
-            <td contenteditable="true" oninput="updateSubtotal(this.parentElement)">${price.toFixed(1)}</td>
-            <td>${qty}</td>
-            <td class="subtotal">${subtotal}</td>
-          `;
-        }
-      }
-      updateTotal();
-    }
-    function updateSubtotal(row) {
-      const price = parseFloat(row.cells[2].textContent) || 0;
-      const qty = parseFloat(row.cells[3].textContent) || 0;
-      const subtotal = price * qty;
-      row.cells[4].textContent = subtotal.toFixed(1);
-      updateTotal();
-    }
-    function updateTotal() {
-      let total = 0;
-      [...tableBody.rows].forEach(row => {
-        const subtotal = parseFloat(row.cells[4].textContent) || 0;
-        total += subtotal;
-      });
-      totalCell.textContent = total.toFixed(1);
-    }
-    window.clearAllMarks = () => {
-      marks = [];
-      tableBody.innerHTML = "";
-      totalCell.textContent = "0";
-      drawImage();
-    };
-    window.exportToExcel = () => {
-      const rows = [["品項", "品名", "金額", "數量", "小計"]];
-      [...tableBody.rows].forEach(row => {
-        const cells = [];
-        for (let i = 0; i < row.cells.length; i++) {
-          cells.push(row.cells[i].textContent.trim());
-        }
-        rows.push(cells);
-      });
-      rows.push(["總金額", "", "", "", totalCell.textContent.trim()]);
-      const worksheet = XLSX.utils.aoa_to_sheet(rows);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "標記品項");
-      const wbout = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-      const blob = new Blob([wbout], { type: "application/octet-stream" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "marked_item.xlsx";
-      link.click();
-      alert("匯出excel檔案成功");
-    };
-    window.downloadImage = () => {
-      const link = document.createElement("a");
-      link.download = "marked_image.png";
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-    };
-  </script>
-</body>
-</html>
