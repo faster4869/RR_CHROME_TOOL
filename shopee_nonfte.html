@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Shopee RR</title>
+<style>
+        html, body {
+            font-family: Roboto, sans-serif;
+            height: 100%;
+            margin: 0;
+        }
+
+        #tab-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ccc;
+            background-color: #FEF5F0;
+            padding: 0 10px;
+        }
+
+        .copyright {
+            margin: 0;
+            padding: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .tab-button {
+            padding: 5px 10px;
+            margin: 10px 5px 0 0;
+            background-color: white;
+            border: 0px solid #ddd;
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            color: #333;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .tab-button:hover {
+            background-color: #f5f5f5;
+        }
+
+        .tab-button.active {
+            background-color: #DC4918;
+            border-color: #bbb #bbb white;
+            color: white;
+            box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        #iframe-container {
+            height: calc(100% - 42px); /* 扣掉上方 tab 按鈕區高度 */
+        }
+
+        #iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+<div id="tab-container">
+    <div class="tab-buttons">
+  <button class="tab-button" data-target="iframe1">工版篩選</button>
+  <button class="tab-button" data-target="iframe2">佇列查詢</button>
+  <!--<button class="tab-button" data-target="iframe3">頁面三</button>-->
+    </div>
+    <p class="copyright">© SOP-Chris&nbsp;&nbsp;<a href="https://link.seatalk.io/profile/open?seatalk_id=1457701659">SeaTalk</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+
+</div>
+
+<div id="iframe-container">
+  <iframe id="iframe1" src="https://script.google.com/macros/s/AKfycby4lxGnGuan_SfgnztnXRaWo54BSdjjP31J3qJEvzeE-1rkT1MsdLjlADMkExEIecir/exec" style="display:block;"></iframe>
+  <iframe id="iframe2" src="https://script.google.com/macros/s/AKfycbxEJdpXKvyqsyDcM58-LAQKQeRe2VGwG2GoeS8KmA-3dXCqEhlXhukkguC18C0EHjq9/exec" style="display:none;"></iframe>
+</div>
+
+<script>
+    const tabButtons = document.querySelectorAll('.tab-button');
+const iframes = document.querySelectorAll('#iframe-container iframe');
+
+tabButtons.forEach(button => {
+  button.addEventListener('click', () => {
+    // 移除所有按鈕的active class
+    tabButtons.forEach(btn => btn.classList.remove('active'));
+    // 為當前點擊的按鈕添加active class
+    button.classList.add('active');
+
+    // 隱藏所有iframe
+    iframes.forEach(iframe => iframe.style.display = 'none');
+
+    // 顯示對應的iframe
+    const targetId = button.dataset.target;
+    const targetIframe = document.getElementById(targetId);
+    if (targetIframe) {
+      targetIframe.style.display = 'block';
+    }
+  });
+});
+
+// 預設顯示第一個iframe
+if (iframes.length > 0) {
+    iframes[0].style.display = 'block';
+    tabButtons[0].classList.add('active');
+}
+    </script>
+
+</body>
+</html>
